@@ -9,7 +9,7 @@
 <nav>
         <ul>
             <li><a href="{{ route('register') }}">Accueil</a></li>
-            <li><a href="{{ route('login') }}">Connexion</a></li>
+            <li><a href="{{ route('login') }}">test</a></li>
 
         </ul>
     </nav>
