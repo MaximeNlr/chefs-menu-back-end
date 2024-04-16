@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('commandes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_restaurant');
-            $table->foreignId('id_table');
+            $table->foreignId('id_restaurant')->constrained();
+            $table->foreignId('id_table')->constrained();
             $table->enum('statut', ['en_attente', 'en_cours', 'terminee']);
             $table->timestamps();
         });

@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
+        Schema::create('details', function (Blueprint $table) {
             $table->id();
-            $table->integer('numero_table');
-            $table->foreignId('id_restaurant');
+            $table->foreignId('id_commande')->constrained();
+            $table->foreignId('id_produit')->constrained();
+            $table->decimal('prix_HT');
+            $table->decimal('taux_TVA');
+            $table->decimal('prix_TTC');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tables');
+        Schema::dropIfExists('details');
     }
 };

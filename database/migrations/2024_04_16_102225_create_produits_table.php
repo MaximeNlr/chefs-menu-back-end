@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cartes', function (Blueprint $table) {
+        Schema::create('produits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_restaurant');
+            $table->foreignId('id_restaurant')->constrained();
             $table->string('nom');
             $table->enum('categorie', ['entree', 'plats', 'desserts', 'boissons']);            
             $table->decimal('prix_HT');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cartes');
+        Schema::dropIfExists('produits');
     }
 };

@@ -10,6 +10,6 @@ class Formule extends Model
     use HasFactory;
 
     protected $guarded = [
-        'id',
+        'id'
     ];
 }
