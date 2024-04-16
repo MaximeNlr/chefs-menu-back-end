@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
+        Schema::create('commandes', function (Blueprint $table) {
             $table->id();
-            $table->string('numero_table');
-            $table->foreignId('id_restaurant')->constrained();
+            $table->foreignId('restaurant_id')->constrained();
+            $table->foreignId('table_id')->constrained();
+            $table->enum('statut', ['en_attente', 'en_cours', 'terminee']);
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tables');
+        Schema::dropIfExists('commandes');
     }
 };

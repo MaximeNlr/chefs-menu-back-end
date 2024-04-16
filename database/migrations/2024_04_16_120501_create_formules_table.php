@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commandes', function (Blueprint $table) {
+        Schema::create('formules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_restaurant')->constrained();
-            $table->foreignId('id_table')->constrained();
-            $table->enum('statut', ['en_attente', 'en_cours', 'terminee']);
+            $table->foreignId('restaurant_id')->constrained();;
+            $table->string('nom_formule');
+            $table->text('description');
+            $table->decimal('prix_total_formule');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commandes');
+        Schema::dropIfExists('formules');
     }
 };
