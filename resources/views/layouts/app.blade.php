@@ -8,7 +8,7 @@
 <body>
 <nav>
         <ul>
-            <li><a href="{{ route('register') }}">Accueil</a></li>
+            <li><a href="{{ route('register') }}">Inscription</a></li>
             <li><a href="{{ route('login') }}">Connexion</a></li>
 
         </ul>
