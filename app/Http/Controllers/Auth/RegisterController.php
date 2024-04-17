@@ -33,7 +33,7 @@ class RegisterController extends Controller
         ]);
 
 
-        // Rediriger l'utilisateur vers son espace personnel après l'inscription
-        return redirect()->route('register')->with('success', 'Votre compte a été créé avec succès.');
+        // Rediriger l'utilisateur vers la page de connexion après l'inscription
+        return redirect()->route('login')->with('success', 'Veuillez vous connecter dès à présent');
     }
 }

@@ -15,12 +15,15 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        // On récupére seulement dans la request : Email et Password
         $credentials = $request->only('email', 'password');
 
+        // On authentifie l'utilisateur en utilisant les informations données ici : Email et Password
         if (Auth::attempt($credentials)) {
             // Authentification réussie
-            return redirect()->intended('path'); // Rediriger vers la page souhaitée après la connexion
+            return redirect()->intended('home'); // Rediriger vers la page souhaitée après la connexion
         }
+
 
         // Authentification échouée
         return redirect()->route('login')->with('error', 'Adresse email ou mot de passe incorrect.');
