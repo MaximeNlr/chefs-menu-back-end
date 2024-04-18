@@ -49,58 +49,56 @@ class RestaurantController extends Controller
      * Display the specified resource.
      */
     public function show(Restaurant $restaurant)
-    {
-        $restaurant = Restaurant::find($restaurant);
-        if ($restaurant) {
-            return response()->json($restaurant);
-        } else {
-            return response()->json(['message' => 'Restaurant non trouvé'], 404);
-        }
+{
+    if ($restaurant) {
+        return response()->json($restaurant);
+    } else {
+        return response()->json(['message' => 'Restaurant non trouvé'], 404);
     }
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Restaurant $restaurant)
-    {
-        $validator = Validator::make($request->all(), [
-            'nom' => 'sometimes|required|string|max:255',   
-            'adresse' => 'sometimes|required|string|max:255',
-            'horaires_ouverture' => 'sometimes|required|string|max:255',
-            'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-        ]);
+public function update(Request $request, Restaurant $restaurant)
+{
+    // Récupérer le restaurant spécifique par son ID
+    $restaurant = Restaurant::findOrFail($restaurant->id);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+    // Mettre à jour les champs spécifiés
+    $restaurant->nom = $request->input('nom', $restaurant->nom);
+    $restaurant->adresse = $request->input('adresse', $restaurant->adresse);
+    $restaurant->horaires_ouverture = $request->input('horaires_ouverture', $restaurant->horaires_ouverture);
 
-        $restaurant = Restaurant::find($restaurant);
-        if (!$restaurant) {
-            return response()->json(['message' => 'Restaurant non trouvé'], 404);
-        }
-
-        $restaurant->update($request->only(['nom', 'adresse', 'horaires']));
-
-        if ($request->hasFile('image_illustration')) {
-            $path = $request->file('image_illustration')->store('public/restaurants');
-            $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
-        }
-
-        $restaurant->save();
-        return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
+    // Vérifier s'il y a une nouvelle image dans la requête
+    if ($request->hasFile('image_illustration')) {
+        $path = $request->file('image_illustration')->store('public/restaurants');
+        $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
     }
+
+    // Sauvegarder les changements
+    $restaurant->save();
+
+    // Retourner une réponse JSON avec un message de succès et les données du restaurant mis à jour
+    return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Restaurant $restaurant)
-    {
-        $restaurant = Restaurant::find($restaurant);
-        if ($restaurant) {
-            $restaurant->delete();
-            return response()->json(['message' => 'Restaurant supprimé avec succès']);
-        } else {
-            return response()->json(['message' => 'Restaurant non trouvé'], 404);
-        }
+public function destroy(Restaurant $restaurant)
+{
+    try {
+        // Supprimer le restaurant spécifique
+        $restaurant = Restaurant::findOrFail($restaurant->id);
+        $restaurant->delete();
+
+        // Retourner une réponse JSON avec un message de succès
+        return response()->json(['message' => 'Restaurant supprimé avec succès']);
+    } catch (\Exception $e) {
+        // En cas d'erreur, retourner une réponse JSON avec un message d'erreur
+        return response()->json(['message' => 'Erreur lors de la suppression du restaurant'], 500);
     }
+}
 }
