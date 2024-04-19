@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller\api;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class RestaurantController extends Controller
@@ -14,9 +15,12 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        $user_id = auth()->id();
-        $restaurants = Restaurant::where('user_id', $user_id)->get();
+        if (Auth::check()){
+            $user = auth::user();
+            $restaurants = Restaurant::where('user_id', $user->id)->get();
         return response()->json($restaurants);
+        }
+        
     }
 
     /**
@@ -24,33 +28,43 @@ class RestaurantController extends Controller
      */
     public function store(Request $request)
     {
-        $user_id = 1;
-        
-        $validated = $request -> validate([
-            'nom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'horaires_ouverture' => 'required|string|max:255',
-            'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-        ]);
+        if (Auth::check()) {
+            $user_id = Auth::id();
 
-        $restaurant = new Restaurant($request->only(['nom', 'adresse', 'horaires_ouverture']));
-        $restaurant->user_id = $user_id;
-        if ($request->hasFile('image_illustration')) {
-            $path = $request->file('image_illustration')->store('public/restaurants');
-            $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            $validated = $request->validate([
+                'nom' => 'required|string|max:255',
+                'adresse' => 'required|string|max:255',
+                'horaires_ouverture' => 'required|string|max:255',
+                'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+
+            $restaurant = Restaurant::create([
+                'nom'=> $validated ['nom'],
+                'adresse' => $validated ['adresse'],
+                'horaires_ouverture' => $validated ['horaires_ouverture'],
+                'image_illustration' => $validated ['image_illustration'],
+                'user_id' => $user_id
+            ]);
+            $restaurant->user_id = $user_id;
+            if ($request->hasFile('image_illustration')) {
+                $path = $request->file('image_illustration')->store('public/restaurants');
+                $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            }
+
+            $restaurant->save();
+
+            return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant], 201);
+        } else {
+            return response()->json(['message' => 'Utilisateur non authentifié'], 401);
         }
-
-        $restaurant->save();
-        
-        return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Restaurant $restaurant)
+    public function show(Restaurant $id)
     {
-        $restaurant = Restaurant::find($restaurant);
+        $restaurant = Restaurant::find($id);
         if ($restaurant) {
             return response()->json($restaurant);
         } else {
@@ -61,7 +75,7 @@ class RestaurantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Restaurant $restaurant)
+    public function update(Request $request, Restaurant $id)
     {
         $validator = Validator::make($request->all(), [
             'nom' => 'sometimes|required|string|max:255',   
@@ -74,7 +88,7 @@ class RestaurantController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $restaurant = Restaurant::find($restaurant);
+        $restaurant = Restaurant::find($id);
         if (!$restaurant) {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
@@ -93,9 +107,9 @@ class RestaurantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Restaurant $restaurant)
+    public function destroy(Restaurant $id)
     {
-        $restaurant = Restaurant::find($restaurant);
+        $restaurant = Restaurant::find($id);
         if ($restaurant) {
             $restaurant->delete();
             return response()->json(['message' => 'Restaurant supprimé avec succès']);
