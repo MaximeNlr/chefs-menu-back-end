@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('formules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained();;
+            $table->foreignId('restaurant_id')->constrained();
             $table->string('nom_formule');
             $table->text('description');
             $table->decimal('prix_total_formule');

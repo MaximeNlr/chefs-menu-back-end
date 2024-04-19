@@ -24,3 +24,7 @@ Route::put('/restaurants/{id}', [RestaurantController::class, 'update']);
 
 // Route pour supprimer un restaurant
 Route::delete('/restaurants/{id}', [RestaurantController::class, 'destroy']);
+
+
+// Route pour ajouter un nouvel élément à la carte du restaurant
+Route::post('/restaurants/{restaurant_id}/elements', [RestaurantController::class, 'storeElement']);

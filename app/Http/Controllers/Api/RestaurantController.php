@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
+use App\Models\Produit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -105,5 +106,46 @@ class RestaurantController extends Controller
         } else {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
+    }
+
+    
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function storeElement(Request $request, string $restaurant_id)
+    {
+        // Validation des données entrées par l'utilisateur
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'categorie' => 'required|string|in:entree,plats,desserts,boissons',
+            'prix_HT' => 'required|numeric|min:0',
+            'taux_TVA' => 'required|numeric|min:0',
+        ]);
+
+        // Si la validation échoue, renvoyer les erreurs de validation
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        // Trouver le restaurant associé à l'ID fourni
+        $restaurant = Restaurant::find($restaurant_id);
+        if (!$restaurant) {
+            return response()->json(['message' => 'Restaurant non trouvé'], 404);
+        }
+
+        // Créer un nouvel élément (produit) avec les données fournies par l'utilisateur
+        $element = new Produit([
+            'nom' => $request->input('nom'), // Récupère le nom du produit depuis la requête
+            'categorie' => $request->input('categorie'), // Récupère la catégorie du produit depuis la requête
+            'prix_HT' => $request->input('prix_HT'), // Récupère le prix HT du produit depuis la requête
+            'taux_TVA' => $request->input('taux_TVA'), // Récupère le taux de TVA du produit depuis la requête
+            'prix_TTC' => $request->input('prix_HT') * (1 + $request->input('taux_TVA') / 100), // Calcule le prix TTC du produit en fonction du prix HT et du taux de TVA
+        ]);
+
+        // Sauvegarder le nouvel élément (produit) associé au restaurant
+        $restaurant->produits()->save($element);
+
+        // Retourner une réponse JSON indiquant que l'élément a été ajouté avec succès
+        return response()->json(['message' => 'Élément ajouté avec succès.', 'element' => $element], 201);
     }
 }
