@@ -12,4 +12,9 @@ class Restaurant extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function user()
+    {
+        return $this->belongTo (User::class, 'user_id');
+    }
 }
