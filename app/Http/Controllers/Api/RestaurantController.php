@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Validator;
 
 class RestaurantController extends Controller
 {
+
+    /**
+     * DEBUT DU CRUD
+     */
+
     /**
      * Display a listing of the resource.
      */
@@ -94,6 +99,10 @@ class RestaurantController extends Controller
     }
 
     /**
+     * FIN DU CRUD
+     */
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
@@ -108,7 +117,6 @@ class RestaurantController extends Controller
         }
     }
 
-    
     /**
      * Store a newly created resource in storage.
      */
@@ -148,4 +156,18 @@ class RestaurantController extends Controller
         // Retourner une réponse JSON indiquant que l'élément a été ajouté avec succès
         return response()->json(['message' => 'Élément ajouté avec succès.', 'element' => $element], 201);
     }
+
+
+    public function showRestaurant($id)
+    {
+        $restaurant = Restaurant::find($id);
+        if ($restaurant) {
+            return view('showElement.create', ['restaurant' => $restaurant]);
+        } else {
+            // Gérer le cas où aucun restaurant n'est pas trouvé avec l'ID fourni
+            return response()->json(['message' => 'Restaurant non trouvé'], 404);
+        }
+    }
+    
+    
 }
