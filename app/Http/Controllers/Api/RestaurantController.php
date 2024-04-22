@@ -18,10 +18,12 @@ class RestaurantController extends Controller
         if (Auth::check()){
             $user = auth::user();
             $restaurants = Restaurant::where('user_id', $user->id)->get();
-        return response()->json($restaurants);
+            return response()->json($restaurants);
+        } else {
+            return response()->json([], 401); 
         }
-        
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -77,6 +79,10 @@ class RestaurantController extends Controller
      */
     public function update(Request $request, Restaurant $id)
     {
+
+        if(Auth::check()) {
+            $user_id = Auth::id();
+        
         $validator = Validator::make($request->all(), [
             'nom' => 'sometimes|required|string|max:255',   
             'adresse' => 'sometimes|required|string|max:255',
@@ -102,6 +108,7 @@ class RestaurantController extends Controller
 
         $restaurant->save();
         return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
+    }
     }
 
     /**

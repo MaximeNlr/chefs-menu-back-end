@@ -11,16 +11,16 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/restaurants', [RestaurantController::class, 'store']);
+    Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
+    Route::get('/restaurants', [RestaurantController::class, 'index']);
+    Route::put('/restaurants/{id}', [RestaurantController::class, 'update']);
+    Route::delete('/restaurants/{id}', [RestaurantController::class, 'destroy']);
 });
 
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
 
-Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants.index');
-Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
-Route::get('/restaurants/{id}', [RestaurantController::class, 'show'])->name('restaurants.show');
-Route::put('/restaurants/{id}', [RestaurantController::class, 'update'])->name('restaurants.update');
-Route::delete('/restaurants/{id}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
 
 
 
