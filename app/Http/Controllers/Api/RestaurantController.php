@@ -75,16 +75,16 @@ class RestaurantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Restaurant $id)
-    {
-
-        if(Auth::check()) {
-            $user_id = Auth::id();
+    public function update(Request $request, $id)
+{
+    if(Auth::check()) {
         
+        $restaurant = Restaurant::find($id);
+
         $validator = Validator::make($request->all(), [
             'nom' => 'sometimes|required|string|max:255',   
             'adresse' => 'sometimes|required|string|max:255',
-            'horaires_ouverture' => 'sometimes|required|string|max:255',
+            'horaires_ouverture' => 'required|string|max:255',
             'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -92,12 +92,11 @@ class RestaurantController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $restaurant = Restaurant::find($id);
         if (!$restaurant) {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
 
-        $restaurant->update($request->only(['nom', 'adresse', 'horaires']));
+        $restaurant->update($request->only(['nom', 'adresse', 'horaires_ouverture']));
 
         if ($request->hasFile('image_illustration')) {
             $path = $request->file('image_illustration')->store('public/restaurants');
@@ -107,7 +106,8 @@ class RestaurantController extends Controller
         $restaurant->save();
         return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
     }
-    }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -121,5 +121,5 @@ class RestaurantController extends Controller
         } else {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
-    }
+}
 }
