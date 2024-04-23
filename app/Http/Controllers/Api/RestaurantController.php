@@ -23,8 +23,6 @@ class RestaurantController extends Controller
             return response()->json([], 401); 
         }
     }
-    
-
     /**
      * Store a newly created resource in storage.
      */
@@ -114,7 +112,7 @@ class RestaurantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Restaurant $id)
+    public function destroy($id)
     {
         $restaurant = Restaurant::find($id);
         if ($restaurant) {
