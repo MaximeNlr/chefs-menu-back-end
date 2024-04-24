@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller\api;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Produit;
 use Illuminate\Support\Facades\Validator;
 
 class RestaurantController extends Controller
@@ -15,12 +16,12 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        if (Auth::check()){
+        if (Auth::check()) {
             $user = auth::user();
             $restaurants = Restaurant::where('user_id', $user->id)->get();
             return response()->json($restaurants);
         } else {
-            return response()->json([], 401); 
+            return response()->json([], 401);
         }
     }
     /**
@@ -39,10 +40,10 @@ class RestaurantController extends Controller
             ]);
 
             $restaurant = Restaurant::create([
-                'nom'=> $validated ['nom'],
-                'adresse' => $validated ['adresse'],
-                'horaires_ouverture' => $validated ['horaires_ouverture'],
-                'image_illustration' => $validated ['image_illustration'],
+                'nom' => $validated['nom'],
+                'adresse' => $validated['adresse'],
+                'horaires_ouverture' => $validated['horaires_ouverture'],
+                'image_illustration' => $validated['image_illustration'],
                 'user_id' => $user_id
             ]);
             $restaurant->user_id = $user_id;
@@ -88,9 +89,9 @@ class RestaurantController extends Controller
             'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
 
         if (!$restaurant) {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
@@ -98,10 +99,10 @@ class RestaurantController extends Controller
 
         $restaurant->update($request->only(['nom', 'adresse', 'horaires_ouverture']));
 
-        if ($request->hasFile('image_illustration')) {
-            $path = $request->file('image_illustration')->store('public/restaurants');
-            $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
-        }
+            if ($request->hasFile('image_illustration')) {
+                $path = $request->file('image_illustration')->store('public/restaurants');
+                $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            }
 
         $restaurant->save();
         return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
