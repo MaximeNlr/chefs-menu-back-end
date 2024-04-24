@@ -4,6 +4,7 @@ use App\Http\Controllers\api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\RestaurantController;
+use App\Http\Controllers\api\QRCodeController;
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::get('logout',[AuthController::class,'logout']);
@@ -20,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function() {
 
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
+Route::get('/qrcode', [QRCodeController::class, 'generate'])->name('qrcode.generate');
 
 
 
