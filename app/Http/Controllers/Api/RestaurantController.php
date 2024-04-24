@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller\api;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Produit;
 use Illuminate\Support\Facades\Validator;
 
 class RestaurantController extends Controller
@@ -15,15 +16,15 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        if (Auth::check()){
+        if (Auth::check()) {
             $user = auth::user();
             $restaurants = Restaurant::where('user_id', $user->id)->get();
             return response()->json($restaurants);
         } else {
-            return response()->json([], 401); 
+            return response()->json([], 401);
         }
     }
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -41,10 +42,10 @@ class RestaurantController extends Controller
             ]);
 
             $restaurant = Restaurant::create([
-                'nom'=> $validated ['nom'],
-                'adresse' => $validated ['adresse'],
-                'horaires_ouverture' => $validated ['horaires_ouverture'],
-                'image_illustration' => $validated ['image_illustration'],
+                'nom' => $validated['nom'],
+                'adresse' => $validated['adresse'],
+                'horaires_ouverture' => $validated['horaires_ouverture'],
+                'image_illustration' => $validated['image_illustration'],
                 'user_id' => $user_id
             ]);
             $restaurant->user_id = $user_id;
@@ -77,38 +78,38 @@ class RestaurantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Restaurant $id)
+    public function update(Request $request, $id)
     {
 
-        if(Auth::check()) {
-            $user_id = Auth::id();
-        
-        $validator = Validator::make($request->all(), [
-            'nom' => 'sometimes|required|string|max:255',   
-            'adresse' => 'sometimes|required|string|max:255',
-            'horaires_ouverture' => 'sometimes|required|string|max:255',
-            'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-        ]);
+        if (Auth::check()) {
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            $restaurant = Restaurant::find($id);
+
+            $validator = Validator::make($request->all(), [
+                'nom' => 'sometimes|required|string|max:255',
+                'adresse' => 'sometimes|required|string|max:255',
+                'horaires_ouverture' => 'sometimes|required|string|max:255',
+                'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+            if (!$restaurant) {
+                return response()->json(['message' => 'Restaurant non trouvé'], 404);
+            }
+
+            $restaurant->update($request->only(['nom', 'adresse', 'horaires_ouverture']));
+
+            if ($request->hasFile('image_illustration')) {
+                $path = $request->file('image_illustration')->store('public/restaurants');
+                $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            }
+
+            $restaurant->save();
+            return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
         }
-
-        $restaurant = Restaurant::find($id);
-        if (!$restaurant) {
-            return response()->json(['message' => 'Restaurant non trouvé'], 404);
-        }
-
-        $restaurant->update($request->only(['nom', 'adresse', 'horaires']));
-
-        if ($request->hasFile('image_illustration')) {
-            $path = $request->file('image_illustration')->store('public/restaurants');
-            $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
-        }
-
-        $restaurant->save();
-        return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
-    }
     }
 
     /**
@@ -123,5 +124,48 @@ class RestaurantController extends Controller
         } else {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
+    }
+
+    // PRODUITS 
+    public function storeProduit(Request $request, string $restaurant_id)
+    {
+        // Validation des données entrées par l'utilisateur
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'categorie' => 'required|string|in:entree,plats,desserts,boissons',
+            'prix_HT' => 'required|numeric|min:0',
+            'taux_TVA' => 'required|numeric|min:0',
+        ]);
+
+        // Si la validation échoue, renvoyer les erreurs de validation
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        // Trouver le restaurant associé à l'ID fourni
+        $restaurant = Restaurant::find($restaurant_id);
+        if (!$restaurant) {
+            return response()->json(['message' => 'Restaurant non trouvé'], 404);
+        }
+
+        // Calculer le prix TTC
+        $prix_HT = $request->input('prix_HT');
+        $taux_TVA = $request->input('taux_TVA');
+        $prix_TTC = $prix_HT * (1 + $taux_TVA / 100);
+
+        // Créer un nouvel élément (produit) avec les données fournies par l'utilisateur
+        $element = new Produit([
+            'nom' => $request->input('nom'), // Récupère le nom du produit depuis la requête
+            'categorie' => $request->input('categorie'), // Récupère la catégorie du produit depuis la requête
+            'prix_HT' => $prix_HT,
+            'taux_TVA' => $taux_TVA,
+            'prix_TTC' => $prix_TTC, // Calcule le prix TTC du produit en fonction du prix HT et du taux de TVA
+        ]);
+
+        // Sauvegarder le nouvel élément (produit) associé au restaurant
+        $restaurant->produits()->save($element);
+
+        // Retourner une réponse JSON indiquant que l'élément a été ajouté avec succès
+        return response()->json(['message' => 'Élément ajouté avec succès.', 'element' => $element], 201);
     }
 }
