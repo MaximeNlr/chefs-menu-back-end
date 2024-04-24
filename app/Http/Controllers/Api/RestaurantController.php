@@ -108,8 +108,6 @@ class RestaurantController extends Controller
         return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
     }
 }
-
-
     /**
      * Remove the specified resource from storage.
      */

@@ -12,17 +12,13 @@ class ProduitController extends Controller
 {
     public function index($restaurant_id)
     {
-        // Vérifie si l'utilisateur est connecté
         if (Auth::check()) {
             $restaurant = Restaurant::find($restaurant_id);
 
-            // Récupère tous les produits associés au restaurant spécifié
             $produits = Produit::where('restaurant_id', $restaurant->id)->get();
 
-            // Retourne la réponse JSON avec les produits
             return response()->json($produits);
         } else {
-            // Retourne une réponse non autorisée si l'utilisateur n'est pas connecté
             return response()->json([], 401);
         }
     }
@@ -52,51 +48,32 @@ class ProduitController extends Controller
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
 
-        // Calculer le prix TTC
         $prix_HT = $request->input('prix_HT');
         $taux_TVA = $request->input('taux_TVA');
         $prix_TTC = $prix_HT * (1 + $taux_TVA / 100);
 
-        // Créer un nouvel élément (produit) avec les données fournies par l'utilisateur
         $element = new Produit([
-            'nom' => $request->input('nom'), // Récupère le nom du produit depuis la requête
-            'categorie' => $request->input('categorie'), // Récupère la catégorie du produit depuis la requête
+            'nom' => $request->input('nom'), 
+            'categorie' => $request->input('categorie'), 
             'prix_HT' => $prix_HT,
             'taux_TVA' => $taux_TVA,
-            'prix_TTC' => $prix_TTC, // Calcule le prix TTC du produit en fonction du prix HT et du taux de TVA
+            'prix_TTC' => $prix_TTC, 
         ]);
 
-        // Sauvegarder le nouvel élément (produit) associé au restaurant
         $restaurant->produits()->save($element);
 
-        // Retourner une réponse JSON indiquant que l'élément a été ajouté avec succès
         return response()->json(['message' => 'Élément ajouté avec succès.', 'element' => $element], 201);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Restaurant $id)
+    public function destroy($id)
     {
+        $produit = Produit::find($id);
+        if ($produit) {
+            $produit->delete();
+            return response()->json(['message' => 'Produit supprimé avec succès']);
+        } else {
+            return response()->json(['message' => 'Produit non trouvé'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Restaurant $id)
-    {
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Restaurant $id)
-    {
-    }
-
-    // PRODUITS 
-    public function storeProduit(Request $request, string $restaurant_id)
-    {
-    }
 }

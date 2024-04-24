@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/restaurants', [RestaurantController::class, 'index']);
     Route::put('/restaurants/{id}', [RestaurantController::class, 'update']);
     Route::delete('/restaurants/{id}', [RestaurantController::class, 'destroy']);
-
+    Route::delete('/produits/{id}', [ProduitController::class, 'destroy']);
     Route::post('/restaurants/{restaurant_id}/produits', [ProduitController::class, 'store']);
     Route::get('restaurants/{restaurant_id}/produits', [ProduitController::class, 'index']);
 });
