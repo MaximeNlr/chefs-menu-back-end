@@ -7,6 +7,7 @@ use App\Models\Restaurant;
 use App\Models\Produit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class RestaurantController extends Controller
 {
@@ -30,6 +31,7 @@ class RestaurantController extends Controller
      */
     public function store(Request $request)
     {
+        // Validation des données entrées par l'utilisateur
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
             'adresse' => 'required|string|max:255',
@@ -37,19 +39,24 @@ class RestaurantController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        // Si la validation échoue, renvoyer les erreurs de validation
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
+        // Créer un nouveau restaurant avec les données fournies par l'utilisateur
         $restaurant = new Restaurant($request->only(['nom', 'adresse', 'horaires']));
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/restaurants');
-            $restaurant->image = $path;
-        }
+
+        // Sauvegarder le nouveau restaurant dans la base de données
         $restaurant->save();
 
-        return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant], 201);
+        // Générer le lien pour le menu | slug = chaine de caractère pour URL en remplaçant les espaces par des " - "
+        $menuLink = '/menu/' . Str::slug($restaurant->name);
+
+        // Retourner une réponse JSON indiquant que le restaurant a été créé avec succès, ainsi que le lien du menu
+        return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant, 'menu_link' => $menuLink], 201);
     }
+
 
     /**
      * Display the specified resource.
@@ -168,6 +175,4 @@ class RestaurantController extends Controller
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
     }
-    
-    
 }
