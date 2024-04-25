@@ -24,8 +24,6 @@ Route::get('/qrcode', [QRCodeController::class, 'generate'])->name('qrcode.gener
 
 
 Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
-Route::put('/commandes/{commande}/terminer', [CommandeController::class, 'terminer'])->name('commandes.terminer');
-Route::put('/commandes/{commande}/reinitialiser', [CommandeController::class, 'reinitialiser'])->name('commandes.reinitialiser');
 
 
 
