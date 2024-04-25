@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Http\Controllers\Commande;
+
+use App\Http\Controllers\Controller;
+use App\Models\Commande;
+use Illuminate\Http\Request;
+
+class CommandeController extends Controller
+{
+    public function index()
+    {
+        $commandes = Commande::all();
+        return response()->json($commandes);
+    }
+}

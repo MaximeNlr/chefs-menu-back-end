@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Qrcode\QRCodeController;
+use App\Http\Controllers\Commande\CommandeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -22,6 +23,9 @@ Route::post('/restaurants/{restaurant_id}/elements', [RestaurantController::clas
 Route::get('/qrcode', [QRCodeController::class, 'generate'])->name('qrcode.generate');
 
 
+Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
+Route::put('/commandes/{commande}/terminer', [CommandeController::class, 'terminer'])->name('commandes.terminer');
+Route::put('/commandes/{commande}/reinitialiser', [CommandeController::class, 'reinitialiser'])->name('commandes.reinitialiser');
 
 
 
