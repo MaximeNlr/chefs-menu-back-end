@@ -65,12 +65,15 @@ class RestaurantController extends Controller
      */
     public function show(Restaurant $id)
     {
-        $restaurant = Restaurant::find($id);
-        if ($restaurant) {
+        if (Auth::check()) {
+
+            $restaurant = Restaurant::find($id);
             return response()->json($restaurant);
-        } else {
+         
+        }   else {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
+        
     }
 
     /**

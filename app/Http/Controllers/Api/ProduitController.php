@@ -32,7 +32,8 @@ class ProduitController extends Controller
         // Validation des données entrées par l'utilisateur
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
-            'categorie' => 'required|string|in:entree,plats,desserts,boissons',
+            'categorie' => 'required|string|in:entrees,plats,desserts,boissons',
+            'description' => 'required|string',
             'prix_HT' => 'required|numeric|min:0',
             'taux_TVA' => 'required|numeric|min:0',
         ]);
@@ -55,6 +56,7 @@ class ProduitController extends Controller
         $element = new Produit([
             'nom' => $request->input('nom'), 
             'categorie' => $request->input('categorie'), 
+            'description' => $request->input('description'),
             'prix_HT' => $prix_HT,
             'taux_TVA' => $taux_TVA,
             'prix_TTC' => $prix_TTC, 

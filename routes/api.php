@@ -10,8 +10,7 @@ use App\Http\Controllers\api\QRCodeController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('logout', [AuthController::class, 'logout']);
 
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+    Route::get('/user', function (Request $request) {return $request->user();
     });
     Route::post('/restaurants', [RestaurantController::class, 'store']);
     Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
