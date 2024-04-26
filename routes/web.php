@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\HomeController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\RestaurantController;
-use App\Http\Controllers\Qrcode\QRCodeController;
+use App\Http\Controllers\Api\QRCodeController;
 use App\Http\Controllers\Commande\CommandeController;
 use Illuminate\Support\Facades\Route;
 

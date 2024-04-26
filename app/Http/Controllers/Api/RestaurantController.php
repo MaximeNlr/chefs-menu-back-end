@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller\api;
 use App\Models\Restaurant;
 use App\Models\Produit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -21,100 +22,111 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        // récupérer et retourner tous les restaurants:
-        $restaurants = Restaurant::all();
-        return response()->json($restaurants);
+        if (Auth::check()) {
+            $user = auth::user();
+            $restaurants = Restaurant::where('user_id', $user->id)->get();
+            return response()->json($restaurants);
+        } else {
+            return response()->json([], 401);
+        }
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        // Validation des données entrées par l'utilisateur
-        $validator = Validator::make($request->all(), [
-            'nom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'horaires' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        if (Auth::check()) {
+            $user_id = Auth::id();
 
-        // Si la validation échoue, renvoyer les erreurs de validation
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+            $validated = $request->validate([
+                'nom' => 'required|string|max:255',
+                'adresse' => 'required|string|max:255',
+                'horaires_ouverture' => 'required|string|max:255',
+                'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
 
-        // Créer un nouveau restaurant avec les données fournies par l'utilisateur
-        $restaurant = new Restaurant($request->only(['nom', 'adresse', 'horaires']));
+            $restaurant = Restaurant::create([
+                'nom' => $validated['nom'],
+                'adresse' => $validated['adresse'],
+                'horaires_ouverture' => $validated['horaires_ouverture'],
+                'image_illustration' => $validated['image_illustration'],
+                'user_id' => $user_id
+            ]);
+            $restaurant->user_id = $user_id;
+            if ($request->hasFile('image_illustration')) {
+                $path = $request->file('image_illustration')->store('public/restaurants');
+                $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            }
 
-        // Sauvegarder le nouveau restaurant dans la base de données
-        $restaurant->save();
+            $restaurant->save();
 
-        // Générer le lien pour le menu | slug = chaine de caractère pour URL en remplaçant les espaces par des " - "
+            // Générer le lien pour le menu | slug = chaine de caractère pour URL en remplaçant les espaces par des " - "
         $menuLink = '/menu/' . Str::slug($restaurant->nom);
 
         // Retourner une réponse JSON indiquant que le restaurant a été créé avec succès, ainsi que le lien du menu
         return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant, 'menu_link' => $menuLink], 201);
+        } else {
+            return response()->json(['message' => 'Utilisateur non authentifié'], 401);
+        }
     }
 
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Restaurant $id)
     {
-        // récupérer un restaurant spécifique par ID
-        $restaurant = Restaurant::find($id);
-        if ($restaurant) {
+        if (Auth::check()) {
+
+            $restaurant = Restaurant::find($id);
             return response()->json($restaurant);
-        } else {
+         
+        }   else {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
+        
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        // mettre à jour un restaurant spécifique
+    public function update(Request $request, $id)
+{
+    if(Auth::check()) {
+        
+        $restaurant = Restaurant::find($id);
+
         $validator = Validator::make($request->all(), [
-            'nom' => 'sometimes|required|string|max:255',    // 'sometimes' signifie que la validation suivante ne sera effectuée que si 'nom' est présent dans la requête.
+            'nom' => 'sometimes|required|string|max:255',   
             'adresse' => 'sometimes|required|string|max:255',
-            'horaires' => 'sometimes|required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'horaires_ouverture' => 'required|string|max:255',
+            'image_illustration' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
 
-        $restaurant = Restaurant::find($id);
         if (!$restaurant) {
             return response()->json(['message' => 'Restaurant non trouvé'], 404);
         }
 
-        $restaurant->update($request->only(['nom', 'adresse', 'horaires']));
+        $restaurant->update($request->only(['nom', 'adresse', 'horaires_ouverture']));
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/restaurants');
-            $restaurant->image = $path;
-        }
+            if ($request->hasFile('image_illustration')) {
+                $path = $request->file('image_illustration')->store('public/restaurants');
+                $restaurant->image_illustration = str_replace('public/', 'storage/', $path);
+            }
 
         $restaurant->save();
         return response()->json(['message' => 'Restaurant mis à jour avec succès.', 'restaurant' => $restaurant], 200);
     }
-
-    /**
-     * FIN DU CRUD
-     */
-
+}
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        // supprimer un restaurant spécifique
         $restaurant = Restaurant::find($id);
         if ($restaurant) {
             $restaurant->delete();
