@@ -23,7 +23,7 @@ Route::post('/restaurants/{restaurant_id}/elements', [RestaurantController::clas
 Route::get('/qrcode', [QRCodeController::class, 'generate'])->name('qrcode.generate');
 
 
-Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
+Route::get('/commandes', [CommandeController::class, 'inde'])->name('commandes.index');
 
 
 
