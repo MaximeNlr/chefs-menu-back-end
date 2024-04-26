@@ -24,6 +24,9 @@ Route::get('/qrcode', [QRCodeController::class, 'generate'])->name('qrcode.gener
 
 
 Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
+Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
+Route::post('/commandes/{commande}/complete', [CommandeController::class, 'completeCommande'])->name('commandes.complete');
+Route::get('/commandes/{commande}/receipt', [CommandeController::class, 'printReceipt'])->name('commandes.receipt');
 
 
 
