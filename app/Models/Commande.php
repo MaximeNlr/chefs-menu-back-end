@@ -9,7 +9,10 @@ class Commande extends Model
 {
     use HasFactory;
 
-    protected $guarded = [
-        'id'
-    ];
+    protected $fillable = ['restaurant_id', 'table_id'];
+
+    public function details()
+    {
+        return $this->hasMany(Detail::class);
+    }
 }

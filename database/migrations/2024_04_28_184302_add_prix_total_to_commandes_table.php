@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('formules', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('restaurant_id')->constrained();
-            $table->string('nom_formule');
-            $table->text('description');
-            $table->decimal('prix_total_formule');
-            $table->timestamps();
+        Schema::table('commandes', function (Blueprint $table) {
+            $table->decimal('prix_total', 8, 2)->nullable();
         });
+        
     }
 
     /**
@@ -26,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('formules');
+        Schema::table('commandes', function (Blueprint $table) {
+            //
+        });
     }
 };

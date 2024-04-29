@@ -12,4 +12,9 @@ class Table extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class);
+    }
 }

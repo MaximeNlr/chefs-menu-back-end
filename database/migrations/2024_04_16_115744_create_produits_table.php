@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('restaurant_id')->constrained();
             $table->string('nom');
-            $table->enum('categorie', ['entree', 'plats', 'desserts', 'boissons']);            
+            $table->enum('categorie', ['entrees', 'plats', 'desserts', 'boissons']);
+            $table->text('description');       
             $table->decimal('prix_HT');
             $table->decimal('taux_TVA');
             $table->decimal('prix_TTC');
