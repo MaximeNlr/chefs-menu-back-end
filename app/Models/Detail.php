@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Detail extends Model
 {
-    use HasFactory;
+    protected $fillable = ['produit_id', 'quantite'];
 
-    protected $guarded = [
-        'id'
-    ];
+    public function commande()
+    {
+        return $this->belongsTo(Commande::class);
+    }
 }

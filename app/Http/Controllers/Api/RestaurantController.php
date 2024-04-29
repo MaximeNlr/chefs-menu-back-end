@@ -60,10 +60,8 @@ class RestaurantController extends Controller
 
             $restaurant->save();
 
-            // Générer le lien pour le menu | slug = chaine de caractère pour URL en remplaçant les espaces par des " - "
         $menuLink = '/menu/' . Str::slug($restaurant->nom);
 
-        // Retourner une réponse JSON indiquant que le restaurant a été créé avec succès, ainsi que le lien du menu
         return response()->json(['message' => 'Restaurant créé avec succès.', 'restaurant' => $restaurant, 'menu_link' => $menuLink], 201);
         } else {
             return response()->json(['message' => 'Utilisateur non authentifié'], 401);
