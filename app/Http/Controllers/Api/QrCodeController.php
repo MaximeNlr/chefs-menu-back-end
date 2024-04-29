@@ -13,7 +13,7 @@ class QrCodeController extends Controller
         $menuLink = $request->input('menuLink');
         $tableNumber = $request->input('tableNumber');
         
-       
+       // Renvoie le lien du menu avec un / Numéro de la table
         $qrCodeContent = "$menuLink/$tableNumber";
 
      
