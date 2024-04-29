@@ -24,7 +24,6 @@ class CommandeController extends Controller
 
     $prixTotal = 0;
 
-    // Création de la commande
     $commande = new Commande();
     $commande->restaurant_id = $restaurantId;
     $commande->table_id = $tableId;
